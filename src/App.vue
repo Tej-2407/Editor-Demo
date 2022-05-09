@@ -11,7 +11,7 @@
           <b-nav-item><router-link to="/demo1">Demo 1</router-link></b-nav-item>
           <b-nav-item><router-link to="/demo2">Demo 2</router-link></b-nav-item>
           <b-nav-item><router-link to="/demo3">Demo 3</router-link></b-nav-item>
-          <!-- <b-nav-item><router-link to="/demo4">Demo 4</router-link></b-nav-item> -->
+          <b-nav-item><router-link to="/demo4">Demo 4</router-link></b-nav-item>
         </b-navbar-nav>
       </b-collapse>
     </b-navbar>

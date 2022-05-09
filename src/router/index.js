@@ -4,7 +4,7 @@ import HomeView from '../views/HomeView.vue'
 import Demo1 from '../views/Demo1.vue'
 import Demo2 from '../views/Demo2.vue'
 import Demo3 from '../views/Demo3.vue'
-// import Demo4 from '../views/Demo4.vue'
+import Demo4 from '../views/Demo4.vue'
 
 Vue.use(VueRouter)
 
@@ -29,11 +29,11 @@ const routes = [
     name: 'demo3',
     component: Demo3
   },
-  // {
-  //   path: '/demo4',
-  //   name: 'demo4',
-  //   component: Demo4
-  // }
+  {
+    path: '/demo4',
+    name: 'demo4',
+    component: Demo4
+  }
 ]
 
 const router = new VueRouter({

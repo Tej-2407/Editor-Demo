@@ -1,94 +1,121 @@
 <template>
-  <div>
-    <div id="drag-items">
-      <img
-        src="https://picsum.photos/600/300/?image=25"
-        @dragstart="dragstart"
-        width="50"
-        height="50"
-        draggable="true"
-      />
-      <!-- <img src="https://picsum.photos/600/300/?image=25" @dragstart="dragstart" width="50" height="50" draggable="true" /> -->
-    </div>
-    <div @dragover.prevent @drop="hdrop" style="width: 100vw; height: 100vh">
-        <v-stage ref="stage" :config="configKonva">
-      <v-layer >
-        <!-- <v-circle :config="configCircle"></v-circle> -->
-        <v-image
-          v-for="(image, index) in images"
-          :key="index"
+  <div >
+    <v-stage
+      ref="stage"
+      :config="config"
+      @mousedown="handleStageMouseDown"
+      @touchstart="handleStageMouseDown"
+    >
+      <v-layer ref="layer">
+        <template v-for="item in list">
+          <v-text
+            :key="item.id"
+            :ref="item.name"
+            :config="item"
+            @transformend="handleTransformEnd"
+          />
+        </template>
+
+        <v-transformer
+          ref="transformer"
           :config="{
-            x:image.x,
-            y:image.y,
-            image: image.image,
-            draggable:true,
+            enabledAnchors: ['middle-left', 'middle-right'],
+            boundBoxFunc: (oldBox, newBox) => {
+              if (newBox.width < this.MIN_WIDTH) {
+                return oldBox;
+              }
+
+              return newBox;
+            },
           }"
         />
       </v-layer>
-        </v-stage>
-    </div>
+    </v-stage>
   </div>
 </template>
 
 <script>
 export default {
+  name: "App",
   data() {
     return {
-      configKonva: {
-        width: 1500,
-        height: 800,
+      MIN_WIDTH: 20,
+      config: {
+        width: window.innerWidth,
+        height: window.innerHeight,
       },
-      images: [],
-      itemURL: "",
+      selectedShapeName: "",
+      list: [
+        {
+          x: 50,
+          y: 60,
+          fontSize: 20,
+          text: "Hello from the Konva framework. Try to resize me.",
+          draggable: true,
+          width: 200,
+          scaleX: 1,
+          name: "textResize1",
+          height: "auto",
+        },
+      ],
     };
   },
   methods: {
-    dragstart(e) {
-      console.log('eeeeeeeeee', e);
-      this.itemURL = e.target.src;
+    handleTransformEnd(e) {
+      const item = this.list.find((i) => i.name === this.selectedShapeName);
+
+      item.width = Math.max(
+        e.target.width() * e.target.scaleX(),
+        this.MIN_WIDTH
+      );
+      item.scaleX = 1;
+      item.scaleY = 1;
     },
-    // dragover(e) {
-    //   e.preventDefault();
-    // }
-    hdrop(e) {
-      console.log('ggggggggggg', e);
-      e.preventDefault();
+    handleStageMouseDown(e) {
+      // clicked on stage - clear selection
+      if (e.target === e.target.getStage()) {
+        this.selectedShapeName = "";
+        this.updateTransformer();
+        return;
+      }
 
-      const image = new window.Image(50,50);
-      console.log('IMAGE', image);
-      image.style.top=e.offsetY+'px';
-      image.style.left=e.offsetX+'px';
-      // image.position({ x: e.offsetX, y: e.offsetY });
-      // image.draggable(true);
-      image.src = this.itemURL;
-      var obj = {};
-      obj.image = image;
-      obj.x = e.offsetX;
-      obj.y = e.offsetY;
-      this.images.push(obj);
+      // clicked on transformer - do nothing
+      const clickedOnTransformer =
+        e.target.getParent().className === "Transformer";
+      if (clickedOnTransformer) {
+        return;
+      }
 
-      // Konva.Image.fromURL(itemURL, function (image) {
-      //   layer.add(image);
-      // });
+      // find clicked rect by its name
+      const name = e.target.name();
+      const item = this.list.find((i) => i.name === name);
+      if (item) {
+        this.selectedShapeName = name;
+      } else {
+        this.selectedShapeName = "";
+      }
+      this.updateTransformer();
+    },
+    updateTransformer() {
+      // here we need to manually attach or detach Transformer node
+      const transformerNode = this.$refs.transformer.getNode();
+      const stage = transformerNode.getStage();
+      const { selectedShapeName } = this;
+
+      const selectedNode = stage.findOne("." + selectedShapeName);
+      // do nothing if selected node is already attached
+      if (selectedNode === transformerNode.node()) {
+        return;
+      }
+
+      if (selectedNode) {
+        // attach to another node
+        transformerNode.nodes([selectedNode]);
+      } else {
+        // remove transformer
+        transformerNode.nodes([]);
+      }
     },
   },
 };
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
-</style>
