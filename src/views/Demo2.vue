@@ -1,42 +1,21 @@
 <template>
-<v-stage ref="stage" :config="stageSize">
-      <v-layer ref="layer">
-        <v-text
-          @dragstart="handleDragStart"
-          @dragend="handleDragEnd"
-          :config="{
-            text: 'Draggable Text',
-            x: 50,
-            y: 50,
-            draggable: true,
-            fill: isDragging ? 'green' : 'black'
-          }"
-        />
-      </v-layer>
-    </v-stage>
+  <div id="app">
+    <vue-editor v-model="content"></vue-editor>
+  </div>
 </template>
 
 <script>
-const width = window.innerWidth;
-const height = window.innerHeight;
+import { VueEditor } from "vue2-editor";
 
 export default {
+  components: {
+    VueEditor,
+  },
+
   data() {
     return {
-      stageSize: {
-        width: width,
-        height: height
-      },
-      isDragging: false
+      content: "<h1>Some initial content</h1>",
     };
   },
-  methods: {
-    handleDragStart() {
-      this.isDragging = true;
-    },
-    handleDragEnd() {
-      this.isDragging = false;
-    }
-  }
 };
 </script>
